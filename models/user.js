@@ -30,6 +30,5 @@ const User = sequelize.define('User', {
   },
 });
 
-User.hasMany(Complaints, { foreignKey: 'User_id' });
 
 module.exports=User

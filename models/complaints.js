@@ -50,6 +50,4 @@ const Complaints = sequelize.define('Complaints', {
   },
 });
 
-Complaints.belongsTo(User, { foreignKey: 'User_id' });
-Complaints.belongsTo(Committee_Head, { foreignKey: 'Committee_Head_id' });
 module.exports=Complaints

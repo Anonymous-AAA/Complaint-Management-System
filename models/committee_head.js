@@ -30,6 +30,4 @@ const Committee_Head = sequelize.define('Committee_Head', {
   },
 });
 
-Committee_Head.hasMany(Complaints, { foreignKey: 'Committee_Head_id' });
-Committee_Head.hasMany(Section, { foreignKey: 'Committee_Head_id' });
 module.exports=Committee_Head

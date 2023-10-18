@@ -17,6 +17,4 @@ const Section_Comments = sequelize.define('Section_Comments', {
   },
 });
 
-Section_Comments.belongsTo(Section, { foreignKey: 'Section_id' });
-Section_Comments.belongsTo(Complaints, { foreignKey: 'Complaint_id' });
 module.exports=Section_Comments

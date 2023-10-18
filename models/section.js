@@ -42,5 +42,4 @@ const Section = sequelize.define('Section', {
   },
 });
 
-Section.belongsTo(Committee_Head, { foreignKey: 'Committee_Head_id' });
 module.exports=Section
