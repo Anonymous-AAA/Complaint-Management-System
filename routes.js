@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-
+const idFromType = require('./constants')
 
 
 
@@ -23,6 +23,7 @@ router.put('/changeStatus/:id',(req,res)=>{
 
 
 router.post('/complaint',(req,res)=>{
+    
     res.json({Response:"Complaint Added Successfully"})
 })
 
@@ -52,7 +53,13 @@ router.get('/user/current',(req,res)=>{
 
 
 router.post('/signup',(req,res)=>{
-    res.json({Response: "User Created Successfully"})
+    let data = req.body
+    res.status(201).json(
+        {
+            //Response:"User Created Successfully",
+            token:"token"
+        }
+    )
 })
 
 
