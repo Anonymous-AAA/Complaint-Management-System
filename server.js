@@ -1,6 +1,6 @@
 const express = require('express')
 const sequelize = require("./database")
-const CORS = require('express-cors')
+const CORS = require('cors')
 
 const app= express()
 
@@ -43,7 +43,7 @@ User.hasMany(Complaints, { foreignKey: 'User_id' });
 
 const router=require('./routes')
 app.use('/',router)
-app.listen(3000,()=>{
+app.listen(5000,()=>{
   console.log("Server is running on port 3000");
 }
   )

@@ -10,17 +10,18 @@ const Complaint = require('./models/complaints')
 // const Committee = require('./models/committee')
 
 
-
+//jacky
 router.put('/authorize/:id',(req,res)=>{
   res.json({Response:"User Authorized Successfully"})  
 })
 
 
+//jacky
 router.delete('/rmUser/:id',(req,res)=>{
     res.json({Response:"User Removed"})
 })
 
-
+//manideep
 router.put('/changeStatus/:id',(req,res)=>{
     res.json({Response:"Complaint Status Updated"})
 })
@@ -29,17 +30,18 @@ router.put('/changeStatus/:id',(req,res)=>{
 
 
 
+//manideep
 router.post('/complaint',(req,res)=>{
     
     res.json({Response:"Complaint Added Successfully"})
 })
 
-
+//alen
 router.get('/complaints',(req,res)=>{
     res.json({Response:"Success",Complaints:"ans"})
 })
 
-
+//alen
 router.route('/compaint/:id')
     .get((req,res)=>{
         res.json({Complaints:"complaint"})
@@ -53,12 +55,13 @@ router.route('/compaint/:id')
 
 
 
-
+//gautham
 router.get('/user/current',(req,res)=>{
     res.json({Response :"Successful"})
 })
 
 
+//amal
 router.post('/signup',(req,res)=>{
     try {
         let data = req.body
@@ -120,15 +123,18 @@ router.post('/signup',(req,res)=>{
 })
 
 
+//amal
 router.post('/login',(req,res)=>{
     res.json({token:"token"})
 })
 
 
+//gautham
 router.post('/comment/:id',(req,res)=>{
     res.json({Response:"New Commment Added"})
 })
 
+//gautham
 router.put('/resolve/:id',(req,res)=>{
     res.json({Response:"Complaint Resolved"})
 })
