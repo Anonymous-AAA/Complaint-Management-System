@@ -5,4 +5,13 @@ const idFromType = {
     4:"Other",
 }
 
+const typeFromId = {
+    "Maintainence":1,
+    "Academic":2,
+    "Hostel":3,
+    "Other":4,
+}
+
+
 module.exports = idFromType
+module.exports = typeFromId

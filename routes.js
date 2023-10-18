@@ -1,6 +1,13 @@
 const express = require('express')
 const router = express.Router()
 const idFromType = require('./constants')
+const typeFromId = require('./constants')
+const bcrypt = require('bcrypt')
+const User = require('./models/user')
+const Section = require('./models/section')
+const Complaint = require('./models/complaints')
+// const Comment = require('./models/comment')
+// const Committee = require('./models/committee')
 
 
 
@@ -53,13 +60,63 @@ router.get('/user/current',(req,res)=>{
 
 
 router.post('/signup',(req,res)=>{
-    let data = req.body
-    res.status(201).json(
-        {
-            //Response:"User Created Successfully",
-            token:"token"
+    try {
+        let data = req.body
+    console.log(data)
+    let passw=bcrypt.hashSync(data.password,10)
+    if(data.role ==="user"){
+        //check if user already exists
+        if(User.findOne({where:{Email:data.email}})){
+            return res.status(400).json({Response:"User Already Exists"})
         }
-    )
+
+        
+        User.create({
+            Name:data.name,
+            Department:data.department,
+            Email:data.email,
+            Password:passw
+        })
+
+        //insert into user table
+        //send response
+    }
+
+    if(data.role=="section head") {
+        //check if user already exists
+        if(Section.findOne({where:{Email:data.email}})){
+            return res.status(400).json({Response:"User Already Exists"})
+        }
+
+        Section.create({
+            Name:data.name,
+            Designation:data.designation,
+            Email:data.email,
+            Password:passw,
+            Committee_Head_id:typeFromId[data.type],
+            is_Authorized:false
+
+            
+        })
+
+    }
+
+    if(data.role !=="user" && data.role !=="section head") {
+        return res.status(400).json({Response:"Invalid Role"})
+
+    }
+    return res.status(201).json({Response:"User Created",
+   
+
+})
+    } catch (error) {
+
+        res.status(500).json({Response:"Error"})
+        
+    }
+    
+
+    
 })
 
 
