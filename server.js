@@ -1,10 +1,5 @@
 const express = require('express')
 const sequelize = require("./database")
-const User = require('./models/user')
-const Section=require('./models/section')
-const Section_Comments=require('./models/section_comments')
-const Complaints=require('./models/complaints')
-const Committee_Head=require('./models/committee_head')
 
 const app= express()
 
