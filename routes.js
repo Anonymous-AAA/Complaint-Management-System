@@ -49,7 +49,7 @@ async function  getComplaint(complaint){
 
     let comment_list=[]
 
-    for (comment in comments){
+    for (comment of comments){
 
         let section = Section.findOne({
             where:{
@@ -114,7 +114,7 @@ router.get('/complaints',async(req,res)=>{
     }
 
     let ans=[]
-    for (complaint in complaints){
+    for (complaint of complaints){
         ans.push(getComplaint(complaint))
     }
 
