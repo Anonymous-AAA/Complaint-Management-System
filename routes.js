@@ -125,13 +125,37 @@ router.get('/complaints',async(req,res)=>{
 
 //alen
 router.route('/compaint/:id')
-    .get((req,res)=>{
-        res.json({Complaints:"complaint"})
+    .get(async (req,res)=>{
+        let complaint = await Complaint.findOne({
+
+            where:{
+                Complaint_id:req.params.id
+            }
+
+        })
+
+        res.json(getComplaint(complaint))
     })
-    .put((req,res)=>{
+    .put(async(req,res)=>{
+        let data= req.body
+        let complaint= await Complaint.findOne({
+            where:{
+                Complaint_id:req.params.id
+            }
+        })
+        complaint.Title=data.title
+        complaint.Description=data.description
+        complaint.Location=data.location
+        await complaint.save()
         res.json({Response :"Complaint Updated"})
     })
-    .delete((req,res)=>{
+    .delete(async (req,res)=>{
+        let complaint=await Complaint.findOne({
+            where:{
+                Complaint_id:req.params.id
+            }
+        })
+        await complaint.destroy()
         res.json({Response :"Complaint Deleted"})
     })
 
