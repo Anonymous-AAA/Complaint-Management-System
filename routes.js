@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt')
 const User = require('./models/user')
 const Section = require('./models/section')
 const Complaint = require('./models/complaints')
+const Section_Comments = require('./models/section_comments')
 // const Comment = require('./models/comment')
 // const Committee = require('./models/committee')
 
@@ -37,8 +38,89 @@ router.post('/complaint',(req,res)=>{
 })
 
 //alen
-router.get('/complaints',(req,res)=>{
-    res.json({Response:"Success",Complaints:"ans"})
+
+async function  getComplaint(complaint){
+
+    var comments = await Section_Comments.findAll({
+        where:{
+            Complaint_id:complaint.Complaint_id
+        }
+    });
+
+    let comment_list=[]
+
+    for (comment in comments){
+
+        let section = Section.findOne({
+            where:{
+                Section_id:comment.Section_id
+            }
+
+        })
+
+        comment_list.push({
+            user:section.name,
+            designation:section.Designation,
+            comment:comment.Comment,
+            email:section.Email
+        })
+
+    }
+
+    return {
+        id : complaint.Complaint_id,
+        title : complaint.Title,
+        description : complaint.Description,
+        status : complaint.Status,
+        date : complaint.Date_posted,
+        type : "Test",
+        remarks : complaint.Remarks,
+        comments : comment_list
+    }
+
+
+
+}
+
+
+router.get('/complaints',async(req,res)=>{
+
+    let current_user=req.current_user
+    let role=req.role
+
+    console.log(current_user)
+
+    if (role==="section head"){
+        var complaints= await Complaint.findAll({
+                            where:
+                                {
+                                    Committee_Head_id:current_user.Head
+                                }
+                            });
+    }else if(role=="committee head"){
+        var complaints= await Complaint.findAll({
+                            where:
+                                {
+                                    Committee_Head_id:current_user.id
+                                }
+                            });
+    }else{
+        var complaints= await Complaint.findAll({
+                            where:
+                                {
+                                    User_id:current_user.id
+                                }
+                            });
+    }
+
+    let ans=[]
+    for (complaint in complaints){
+        ans.push(getComplaint(complaint))
+    }
+
+
+
+    res.json({Response:"Success",Complaints:ans})
 })
 
 //alen
