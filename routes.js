@@ -1,4 +1,12 @@
+//TODO:make sure to handle errors and send appropriate responses
+//TODO:use try catch blocks and send 500 status code for internal server error
+
+// TODO:send error jsons in the format {Response:"Error Message"}
+
+
 //initialize stuff
+
+
 
 const express = require('express')
 const router = express.Router()
