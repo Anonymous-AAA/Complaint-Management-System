@@ -1,15 +1,27 @@
+//initialize stuff
+
 const express = require('express')
 const router = express.Router()
+
+//importing constants
 const idFromType = require('./constants')
 const typeFromId = require('./constants')
+
+//external imports
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+
+//importing models
 const User = require('./models/user')
 const Section = require('./models/section')
 const Complaint = require('./models/complaints')
 const Section_Comments = require('./models/section_comments')
 // const Comment = require('./models/comment')
 // const Committee = require('./models/committee')
+const Committee_Head = require('./models/committee_head')
 
+//middlewares
+const fetchUser = require('./middlewares/fetchUser') //to be used for protected routes
 
 //jacky
 router.put('/authorize/:id',(req,res)=>{
@@ -83,7 +95,7 @@ async function  getComplaint(complaint){
 }
 
 
-router.get('/complaints',async(req,res)=>{
+router.get('/complaints',fetchUser,async(req,res)=>{
 
     let current_user=req.current_user
     let role=req.role
@@ -168,16 +180,18 @@ router.get('/user/current',(req,res)=>{
 
 
 //amal
-router.post('/signup',(req,res)=>{
+router.post('/signup',async (req,res)=>{
     try {
         let data = req.body
     console.log(data)
     let passw=bcrypt.hashSync(data.password,10)
     if(data.role ==="user"){
         //check if user already exists
-        if(User.findOne({where:{Email:data.email}})){
+      exist= await User.findOne({where:{Email:data.email}})
+        if(exist){
             return res.status(400).json({Response:"User Already Exists"})
         }
+
 
         
         User.create({
@@ -193,7 +207,8 @@ router.post('/signup',(req,res)=>{
 
     if(data.role=="section head") {
         //check if user already exists
-        if(Section.findOne({where:{Email:data.email}})){
+        exist= await Section.findOne({where:{Email:data.email}})
+        if(exist){
             return res.status(400).json({Response:"User Already Exists"})
         }
 
@@ -230,8 +245,53 @@ router.post('/signup',(req,res)=>{
 
 
 //amal
-router.post('/login',(req,res)=>{
-    res.json({token:"token"})
+router.post('/login',async (req,res)=>{
+    try {
+        let data = req.body
+        if(data.role==='section head') {
+            let user=await Section.findOne({where:{Email:data.email}})
+            if(user){
+                if(bcrypt.compareSync(data.password,user.Password)){
+                    //get user object 
+                    
+                    let token=jwt.sign({id:user.Section_id,role:"section head",user:user},process.env.JWT_SECRET)
+                    return res.status(200).json({Response:"Login Successful",token:token})
+                }
+            }
+            return res.status(400).json({Response:"Invalid Credentials"})
+        }
+
+        if(data.role==='committee head') {
+            let user=await Committee_Head.findOne({where:{Email:data.email}})
+            if(user){
+                if(bcrypt.compareSync(data.password,user.Password)){
+                    let token=jwt.sign({id:user.Committee_id,role:"committee head",user:user},process.env.JWT_SECRET)
+                    return res.status(200).json({Response:"Login Successful",token:token})
+                }
+            }
+            return res.status(400).json({Response:"Invalid Credentials"})
+        }
+
+        if(data.role==='user') {
+            let user=await User.findOne({where:{Email:data.email}})
+            if(user){
+                if(bcrypt.compareSync(data.password,user.Password)){
+                    let token=jwt.sign({id:user.User_id,role:"user",user:user},process.env.JWT_SECRET)
+                    return res.status(200).json({Response:"Login Successful",token:token})
+                }
+            }
+            return res.status(400).json({Response:"Invalid Credentials"})
+        }
+
+        return res.status(400).json({Response:"Invalid Role"})
+        
+
+        
+        
+    } catch (error) {
+        res.status(500).json({Response:error.message})
+    }
+    
 })
 
 

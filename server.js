@@ -1,7 +1,7 @@
 const express = require('express')
 const sequelize = require("./database")
 const CORS = require('cors')
-
+let dotenv = require('dotenv').config()
 const app= express()
 
 const User=require('./models/user')
@@ -44,6 +44,6 @@ User.hasMany(Complaints, { foreignKey: 'User_id' });
 const router=require('./routes')
 app.use('/',router)
 app.listen(5000,()=>{
-  console.log("Server is running on port 3000");
+  console.log(`server is running on port 5000 with env ${process.env.NODE_ENV} environment`)
 }
   )
