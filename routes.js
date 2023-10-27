@@ -33,56 +33,53 @@ const fetchUser = require('./middlewares/fetchUser') //to be used for protected 
 
 //jacky
 
-router.get('/authorize/:id',fetchUser,async(req,res)=>{
-    try{
-            if(req.role=="committee head")
-            {      
-                const id = req.params.id; 
-                const section = await Section.findByPk(id);
-        
-                if(section)
-                {
-                    section.is_Authorized = true;
-                    await section.save();
-                    return res.status(200).json({ Response: 'User Authorized Successfully' });
-                }
-                else 
-                {
-                    return res.status(404).json({ Response: 'Section not found' });
-                }
+router.get('/authorize/:id', fetchUser, async (req, res) => {
+    try {
+        if (req.role == "committee head") {
+            const id = req.params.id;
+            const section = await Section.findByPk(id);
+
+            if (section) {
+                section.is_Authorized = true;
+                await section.save();
+                return res.status(200).json({ Response: 'User Authorized Successfully' });
             }
             else {
-                // If the user's role is not "committee head", send a 403 (Forbidden) response
-                return res.status(403).json({ Response: 'Access denied' });
+                return res.status(404).json({ Response: 'Section not found' });
             }
-        } catch (error) {
-            // Handle any errors that may occur during the process
-            console.error(error);
-            return res.status(500).json({ Response: 'Server error' });
         }
-    });
-                
+        else {
+            // If the user's role is not "committee head", send a 403 (Forbidden) response
+            return res.status(403).json({ Response: 'Access denied' });
+        }
+    } catch (error) {
+        // Handle any errors that may occur during the process
+        console.error(error);
+        return res.status(500).json({ Response: 'Server error' });
+    }
+});
 
+//jacky
 
-router.delete('/remove/:id', async (req, res) => {
+router.delete('/rmUser/:id', fetchUser, async (req, res) => {
     try {
-       
+
         if (req.role === "committee head") {
-         
+
             const section = await Section.findByPk(req.params.id);
 
             if (section) {
-              
+
                 await section.destroy();
 
-               
+
                 return res.status(200).json({ Response: "User Removed" });
             } else {
-               
+
                 return res.status(404).json({ Response: "Section not found" });
             }
         } else {
-           
+
             return res.status(403).json({ Response: "Access denied" });
         }
     } catch (error) {
@@ -91,7 +88,6 @@ router.delete('/remove/:id', async (req, res) => {
         return res.status(500).json({ Response: "Server error" });
     }
 });
-
 //manideep
 router.put('/changeStatus/:id', async (req, res) => {
     try {
@@ -141,43 +137,43 @@ router.post('/complaint', fetchUser, async (req, res) => {
 
 //alen
 
-async function  getComplaint(complaint){
+async function getComplaint(complaint) {
 
     var comments = await Section_Comments.findAll({
-        where:{
-            Complaint_id:complaint.Complaint_id
+        where: {
+            Complaint_id: complaint.Complaint_id
         }
     });
 
-    let comment_list=[]
+    let comment_list = []
 
-    for (comment of comments){
+    for (comment of comments) {
 
         let section = await Section.findOne({
-            where:{
-                Section_id:comment.Section_id
+            where: {
+                Section_id: comment.Section_id
             }
 
         })
 
         comment_list.push({
-            user:section.name,
-            designation:section.Designation,
-            comment:comment.Comment,
-            email:section.Email
+            user: section.name,
+            designation: section.Designation,
+            comment: comment.Comment,
+            email: section.Email
         })
 
     }
 
     return {
-        id : complaint.Complaint_id,
-        title : complaint.Title,
-        description : complaint.Description,
-        status : complaint.Status,
-        date : complaint.Date_jed,
-        type : "Test",
-        remarks : complaint.Remarks,
-        comments : comment_list
+        id: complaint.Complaint_id,
+        title: complaint.Title,
+        description: complaint.Description,
+        status: complaint.Status,
+        date: complaint.Date_jed,
+        type: "Test",
+        remarks: complaint.Remarks,
+        comments: comment_list
     }
 
 
@@ -185,246 +181,252 @@ async function  getComplaint(complaint){
 }
 
 
-router.get('/complaints',fetchUser,async(req,res)=>{
+router.get('/complaints', fetchUser, async (req, res) => {
 
-    let current_user=req.current_user
-    let role=req.role
+    let current_user = req.current_user
+    let role = req.role
 
-    
-    console.log("Hello",current_user,role)
 
-    if (role==="section head"){
-        var complaints= await Complaint.findAll({
-                            where:
-                                {
-                                    Committee_Head_id:current_user.Committee_Head_id
-                                }
-                            });
-    }else if(role=="committee head"){
-        var complaints= await Complaint.findAll({
-                            where:
-                                {
-                                    Committee_Head_id:current_user.id
-                                }
-                            });
-    }else{
-        var complaints= await Complaint.findAll({
-                            where:
-                                {
-                                    User_id:current_user.id
-                                }
-                            });
+    console.log("Hello", current_user, role)
+
+    if (role === "section head") {
+        var complaints = await Complaint.findAll({
+            where:
+            {
+                Committee_Head_id: current_user.Committee_Head_id
+            }
+        });
+    } else if (role == "committee head") {
+        var complaints = await Complaint.findAll({
+            where:
+            {
+                Committee_Head_id: current_user.id
+            }
+        });
+    } else {
+        var complaints = await Complaint.findAll({
+            where:
+            {
+                User_id: current_user.id
+            }
+        });
     }
 
-    let ans=[]
-    console.log("complaints",complaints)
-    for (complaint of complaints){
-        ans.push( await getComplaint(complaint.dataValues))
+    let ans = []
+    console.log("complaints", complaints)
+    for (complaint of complaints) {
+        ans.push(await getComplaint(complaint.dataValues))
     }
 
-    console.log("ans",ans)
+    console.log("ans", ans)
 
 
-    res.json({Response:"Success",Complaints:ans})
+    res.json({ Response: "Success", Complaints: ans })
 })
 
 //alen
 router.route('/complaint/:id')
-    .get(async (req,res)=>{
+    .get(async (req, res) => {
         let complaint = await Complaint.findOne({
 
-            where:{
-                Complaint_id:req.params.id
+            where: {
+                Complaint_id: req.params.id
             }
 
         })
 
         res.json(getComplaint(complaint))
     })
-    .put(async(req,res)=>{
-        let data= req.body
-        let complaint= await Complaint.findOne({
-            where:{
-                Complaint_id:req.params.id
+    .put(async (req, res) => {
+        let data = req.body
+        let complaint = await Complaint.findOne({
+            where: {
+                Complaint_id: req.params.id
             }
         })
-        complaint.Title=data.title
-        complaint.Description=data.description
-        complaint.Location=data.location
+        complaint.Title = data.title
+        complaint.Description = data.description
+        complaint.Location = data.location
         await complaint.save()
-        res.json({Response :"Complaint Updated"})
+        res.json({ Response: "Complaint Updated" })
     })
-    .delete(async (req,res)=>{
-        let complaint=await Complaint.findOne({
-            where:{
-                Complaint_id:req.params.id
+    .delete(async (req, res) => {
+        let complaint = await Complaint.findOne({
+            where: {
+                Complaint_id: req.params.id
             }
         })
         await complaint.destroy()
-        res.json({Response :"Complaint Deleted"})
+        res.json({ Response: "Complaint Deleted" })
     })
 
 
 
 //gautham
-router.get('/user/current',fetchUser,async (req,res)=>{
-    let user=req.current_user
+router.get('/user/current', fetchUser, async (req, res) => {
+    let user = req.current_user
     //make all the keys in user object start with lowercase
-    user=JSON.parse(JSON.stringify(user).toLowerCase())
+    user = {
+        ...user,
+        name: user.Name,
+        email: user.Email,
+        department: user.Department
+    }
+    let role = req.role === "user" ? "User" : req.role
 
-    res.json({...user,role:req.role.charAt(0).toUpperCase()+req.role.slice(1)})
+    res.json({ ...user, role: role })
 
 })
 
 
 //amal
-router.post('/signup',async (req,res)=>{
+router.post('/signup', async (req, res) => {
     try {
         let data = req.body
-    console.log(data)
-    let passw=bcrypt.hashSync(data.password,10)
-    if(data.role ==="user"){
-        //check if user already exists
-      exist= await User.findOne({where:{Email:data.email}})
-        if(exist){
-            return res.status(400).json({Response:"User Already Exists"})
+        console.log(data)
+        let passw = bcrypt.hashSync(data.password, 10)
+        if (data.role === "user") {
+            //check if user already exists
+            exist = await User.findOne({ where: { Email: data.email } })
+            if (exist) {
+                return res.status(400).json({ Response: "User Already Exists" })
+            }
+
+
+
+            User.create({
+                Name: data.name,
+                Department: data.department,
+                Email: data.email,
+                Password: passw
+            })
+
+            //insert into user table
+            //send response
         }
 
+        if (data.role == "section head") {
+            //check if user already exists
+            exist = await Section.findOne({ where: { Email: data.email } })
+            if (exist) {
+                return res.status(400).json({ Response: "User Already Exists" })
+            }
 
-        
-        User.create({
-            Name:data.name,
-            Department:data.department,
-            Email:data.email,
-            Password:passw
-        })
+            Section.create({
+                Name: data.name,
+                Designation: data.designation,
+                Email: data.email,
+                Password: passw,
+                Committee_Head_id: typeFromId[data.type],
+                is_Authorized: false
 
-        //insert into user table
-        //send response
-    }
 
-    if(data.role=="section head") {
-        //check if user already exists
-        exist= await Section.findOne({where:{Email:data.email}})
-        if(exist){
-            return res.status(400).json({Response:"User Already Exists"})
+            })
+
         }
 
-        Section.create({
-            Name:data.name,
-            Designation:data.designation,
-            Email:data.email,
-            Password:passw,
-            Committee_Head_id:typeFromId[data.type],
-            is_Authorized:false
+        if (data.role !== "user" && data.role !== "section head") {
+            return res.status(400).json({ Response: "Invalid Role" })
 
-            
+        }
+        return res.status(201).json({
+            Response: "User Created",
+
+
         })
-
-    }
-
-    if(data.role !=="user" && data.role !=="section head") {
-        return res.status(400).json({Response:"Invalid Role"})
-
-    }
-    return res.status(201).json({Response:"User Created",
-   
-
-})
     } catch (error) {
 
-        res.status(500).json({Response:"Error"})
-        
-    }
-    
+        res.status(500).json({ Response: "Error" })
 
-    
+    }
+
+
+
 })
 
 
 //amal
-router.post('/login',async (req,res)=>{
+router.post('/login', async (req, res) => {
     try {
         let data = req.body
-        if(data.role==='section head') {
-            let user=await Section.findOne({where:{Email:data.email}})
-            if(user){
-                if(bcrypt.compareSync(data.password,user.Password)){
+        if (data.role === 'section head') {
+            let user = await Section.findOne({ where: { Email: data.email } })
+            if (user) {
+                if (bcrypt.compareSync(data.password, user.Password)) {
                     //get user object 
-                    
-                    let token=jwt.sign({id:user.Section_id,role:"section head",user:user},process.env.JWT_SECRET)
-                    return res.status(200).json({Response:"Login Successful",token:token})
+
+                    let token = jwt.sign({ id: user.Section_id, role: "section head", user: user }, process.env.JWT_SECRET)
+                    return res.status(200).json({ Response: "Login Successful", token: token })
                 }
             }
-            return res.status(400).json({Response:"Invalid Credentials"})
+            return res.status(400).json({ Response: "Invalid Credentials" })
         }
 
-        if(data.role==='committee head') {
-            let user=await Committee_Head.findOne({where:{Email:data.email}})
-            if(user){
-                if(bcrypt.compareSync(data.password,user.Password)){
-                    let token=jwt.sign({id:user.Committee_id,role:"committee head",user:user},process.env.JWT_SECRET)
-                    return res.status(200).json({Response:"Login Successful",token:token})
+        if (data.role === 'committee head') {
+            let user = await Committee_Head.findOne({ where: { Email: data.email } })
+            if (user) {
+                if (bcrypt.compareSync(data.password, user.Password)) {
+                    let token = jwt.sign({ id: user.Committee_id, role: "committee head", user: user }, process.env.JWT_SECRET)
+                    return res.status(200).json({ Response: "Login Successful", token: token })
                 }
             }
-            return res.status(400).json({Response:"Invalid Credentials"})
+            return res.status(400).json({ Response: "Invalid Credentials" })
         }
 
-        if(data.role==='user') {
-            let user=await User.findOne({where:{Email:data.email}})
-            if(user){
-                if(bcrypt.compareSync(data.password,user.Password)){
-                    let token=jwt.sign({id:user.User_id,role:"user",user:user},process.env.JWT_SECRET)
-                    return res.status(200).json({Response:"Login Successful",token:token})
+        if (data.role === 'user') {
+            let user = await User.findOne({ where: { Email: data.email } })
+            if (user) {
+                if (bcrypt.compareSync(data.password, user.Password)) {
+                    let token = jwt.sign({ id: user.User_id, role: "user", user: user }, process.env.JWT_SECRET)
+                    return res.status(200).json({ Response: "Login Successful", token: token })
                 }
             }
-            return res.status(400).json({Response:"Invalid Credentials"})
+            return res.status(400).json({ Response: "Invalid Credentials" })
         }
 
-        return res.status(400).json({Response:"Invalid Role"})
-        
+        return res.status(400).json({ Response: "Invalid Role" })
 
-        
-        
+
+
+
     } catch (error) {
-        res.status(500).json({Response:error.message})
+        res.status(500).json({ Response: error.message })
     }
-    
+
 })
 
 
 //gautham
-router.post('/comment/:id',(req,res)=>{
-    res.json({Response:"New Commment Added"})
+router.post('/comment/:id', (req, res) => {
+    res.json({ Response: "New Commment Added" })
 })
 
 //gautham
-router.put('/resolve/:id',(req,res)=>{
-    res.json({Response:"Complaint Resolved"})
+router.put('/resolve/:id', (req, res) => {
+    res.json({ Response: "Complaint Resolved" })
 })
 
-router.get('/test',(req,res)=>{
-    res.json({Response:"Request successful"})
+router.get('/test', (req, res) => {
+    res.json({ Response: "Request successful" })
 })
 
-router.get("/pending_req",fetchUser,async(req,res)=>{
-    if(req.role!="committee head")
-    {
-        return res.status(403).json({Response:"Access Denied"})
+router.get("/pending_req", fetchUser, async (req, res) => {
+    if (req.role != "committee head") {
+        return res.status(403).json({ Response: "Access Denied" })
     }
 
-    let pending_reqs=await Section.findAll({
-        where:{
-            is_Authorized:false
+    let pending_reqs = await Section.findAll({
+        where: {
+            is_Authorized: false
         }
     })
 
 
-    res.json({Response:"Success",pending_reqs:pending_reqs})
+    res.json({ Response: "Success", pending_reqs: pending_reqs })
 
 }
 )
 
 
 
-module.exports=router
+module.exports = router
