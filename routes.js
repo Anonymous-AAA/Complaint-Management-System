@@ -218,7 +218,7 @@ router.get('/user/current',fetchUser,async (req,res)=>{
     let user=req.current_user
     //make all the keys in user object start with lowercase
     user=JSON.parse(JSON.stringify(user).toLowerCase())
-    
+
     res.json({...user,role:req.role.charAt(0).toUpperCase()+req.role.slice(1)})
 
 })
