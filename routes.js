@@ -197,14 +197,14 @@ router.get('/complaints',fetchUser,async(req,res)=>{
         var complaints= await Complaint.findAll({
                             where:
                                 {
-                                    Committee_Head_id:current_user.Section_id
+                                    Committee_Head_id:current_user.Committee_Head_id
                                 }
                             });
     }else if(role=="committee head"){
         var complaints= await Complaint.findAll({
                             where:
                                 {
-                                    Committee_Head_id:current_user.Committee_Head_id
+                                    Committee_Head_id:current_user.id
                                 }
                             });
     }else{
@@ -229,7 +229,7 @@ router.get('/complaints',fetchUser,async(req,res)=>{
 })
 
 //alen
-router.route('/compaint/:id')
+router.route('/complaint/:id')
     .get(async (req,res)=>{
         let complaint = await Complaint.findOne({
 
@@ -406,6 +406,25 @@ router.put('/resolve/:id',(req,res)=>{
 router.get('/test',(req,res)=>{
     res.json({Response:"Request successful"})
 })
+
+router.get("/pending_req",fetchUser,async(req,res)=>{
+    if(req.role!="committee head")
+    {
+        return res.status(403).json({Response:"Access Denied"})
+    }
+
+    let pending_reqs=await Section.findAll({
+        where:{
+            is_Authorized:false
+        }
+    })
+
+
+    res.json({Response:"Success",pending_reqs:pending_reqs})
+
+}
+)
+
 
 
 module.exports=router
