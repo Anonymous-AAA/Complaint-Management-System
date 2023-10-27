@@ -103,7 +103,7 @@ async function  getComplaint(complaint){
 
     for (comment of comments){
 
-        let section = Section.findOne({
+        let section = await Section.findOne({
             where:{
                 Section_id:comment.Section_id
             }
@@ -140,20 +140,21 @@ router.get('/complaints',fetchUser,async(req,res)=>{
     let current_user=req.current_user
     let role=req.role
 
-    console.log(current_user)
+    
+    console.log("Hello",current_user,role)
 
     if (role==="section head"){
         var complaints= await Complaint.findAll({
                             where:
                                 {
-                                    Committee_Head_id:current_user.Head
+                                    Committee_Head_id:current_user.Section_id
                                 }
                             });
     }else if(role=="committee head"){
         var complaints= await Complaint.findAll({
                             where:
                                 {
-                                    Committee_Head_id:current_user.id
+                                    Committee_Head_id:current_user.Committee_Head_id
                                 }
                             });
     }else{
@@ -166,10 +167,12 @@ router.get('/complaints',fetchUser,async(req,res)=>{
     }
 
     let ans=[]
+    console.log("complaints",complaints)
     for (complaint of complaints){
-        ans.push(getComplaint(complaint))
+        ans.push( await getComplaint(complaint.dataValues))
     }
 
+    console.log("ans",ans)
 
 
     res.json({Response:"Success",Complaints:ans})
