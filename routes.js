@@ -43,18 +43,50 @@ router.delete('/rmUser/:id',(req,res)=>{
 })
 
 //manideep
-router.put('/changeStatus/:id',(req,res)=>{
-    res.json({Response:"Complaint Status Updated"})
+router.put('/changeStatus/:id', async (req, res) => {
+    try {
+        let data = req.body;
+        let complaint = await Complaint.findOne({
+            where: {
+                Complaint_id: req.params.id
+            }
+        });
+        if (!complaint) {
+            return res.status(404).json({ Response: "Complaint not found" });
+        }
+        complaint.Status = data.status;
+        await complaint.save();
+        res.json({ Response: "Complaint Status Updated" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ Response: "Internal Server Error" });
+    }
 })
 
-
-
-
-
 //manideep
-router.post('/complaint',(req,res)=>{
-    
-    res.json({Response:"Complaint Added Successfully"})
+router.post('/post_complaint', fetchUser, async (req, res) => {
+    try {
+        const data = req.body;
+        const now = new Date();
+        const dated = now.toLocaleDateString();
+        let new_complaint;
+        if (req.role === "user") {
+            new_complaint = await Complaint.create({
+                Title: data.title,
+                Description: data.description,
+                Date_posted: dated,
+                Remarks: "",
+                Status: "Open",
+                Location: data.location,
+                User_id: req.current_user.id,
+                Committee_Head_id: idFromType(data.type)
+            });
+        }
+        res.json({ Response: "Complaint Added Successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ Response: "Internal Server Error" });
+    }
 })
 
 //alen
