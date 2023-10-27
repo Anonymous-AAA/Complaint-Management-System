@@ -64,13 +64,13 @@ router.put('/changeStatus/:id', async (req, res) => {
 })
 
 //manideep
-router.post('/post_complaint', fetchUser, async (req, res) => {
+router.post('/complaint', fetchUser, async (req, res) => {
     try {
         const data = req.body;
         const now = new Date();
         const dated = now.toLocaleDateString();
         let new_complaint;
-        if (req.role === "user") {
+        if (req.role === "User") {
             new_complaint = await Complaint.create({
                 Title: data.title,
                 Description: data.description,
@@ -124,7 +124,7 @@ async function  getComplaint(complaint){
         title : complaint.Title,
         description : complaint.Description,
         status : complaint.Status,
-        date : complaint.Date_posted,
+        date : complaint.Date_jed,
         type : "Test",
         remarks : complaint.Remarks,
         comments : comment_list
@@ -225,7 +225,7 @@ router.post('/signup',async (req,res)=>{
         let data = req.body
     console.log(data)
     let passw=bcrypt.hashSync(data.password,10)
-    if(data.role ==="user"){
+    if(data.role ==="User"){
         //check if user already exists
       exist= await User.findOne({where:{Email:data.email}})
         if(exist){
@@ -265,7 +265,7 @@ router.post('/signup',async (req,res)=>{
 
     }
 
-    if(data.role !=="user" && data.role !=="section head") {
+    if(data.role !=="User" && data.role !=="section head") {
         return res.status(400).json({Response:"Invalid Role"})
 
     }
@@ -316,7 +316,7 @@ router.post('/login',async (req,res)=>{
             let user=await User.findOne({where:{Email:data.email}})
             if(user){
                 if(bcrypt.compareSync(data.password,user.Password)){
-                    let token=jwt.sign({id:user.User_id,role:"user",user:user},process.env.JWT_SECRET)
+                    let token=jwt.sign({id:user.User_id,role:"User",user:user},process.env.JWT_SECRET)
                     return res.status(200).json({Response:"Login Successful",token:token})
                 }
             }
