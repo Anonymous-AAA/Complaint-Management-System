@@ -43,7 +43,7 @@ User.hasMany(Complaints, { foreignKey: 'User_id' });
 
 const router=require('./routes')
 app.use('/',router)
-app.listen(5000,()=>{
+app.listen(5001,()=>{
   console.log(`server is running on port 5000 with env ${process.env.NODE_ENV} environment`)
 }
   )

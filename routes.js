@@ -32,15 +32,65 @@ const Committee_Head = require('./models/committee_head')
 const fetchUser = require('./middlewares/fetchUser') //to be used for protected routes
 
 //jacky
-router.put('/authorize/:id',(req,res)=>{
-  res.json({Response:"User Authorized Successfully"})  
-})
+
+router.get('/authorize/:id',fetchUser,async(req,res)=>{
+    try{
+            if(req.role=="committee head")
+            {      
+                const id = req.params.id; 
+                const section = await Section.findByPk(id);
+        
+                if(section)
+                {
+                    section.is_Authorized = true;
+                    await section.save();
+                    return res.status(200).json({ Response: 'User Authorized Successfully' });
+                }
+                else 
+                {
+                    return res.status(404).json({ Response: 'Section not found' });
+                }
+            }
+            else {
+                // If the user's role is not "committee head", send a 403 (Forbidden) response
+                return res.status(403).json({ Response: 'Access denied' });
+            }
+        } catch (error) {
+            // Handle any errors that may occur during the process
+            console.error(error);
+            return res.status(500).json({ Response: 'Server error' });
+        }
+    });
+                
 
 
-//jacky
-router.delete('/rmUser/:id',(req,res)=>{
-    res.json({Response:"User Removed"})
-})
+router.delete('/remove/:id', async (req, res) => {
+    try {
+       
+        if (req.role === "committee head") {
+         
+            const section = await Section.findByPk(req.params.id);
+
+            if (section) {
+              
+                await section.destroy();
+
+               
+                return res.status(200).json({ Response: "User Removed" });
+            } else {
+               
+                return res.status(404).json({ Response: "Section not found" });
+            }
+        } else {
+           
+            return res.status(403).json({ Response: "Access denied" });
+        }
+    } catch (error) {
+        // Handle any errors that may occur during the process
+        console.error(error);
+        return res.status(500).json({ Response: "Server error" });
+    }
+});
 
 //manideep
 router.put('/changeStatus/:id', async (req, res) => {
