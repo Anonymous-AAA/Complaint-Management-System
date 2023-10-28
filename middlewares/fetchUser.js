@@ -17,6 +17,7 @@ const fetchUser=(req,res,next)=>{
         const data=jwt.verify(token,process.env.JWT_SECRET)
         data.user.id=data.user.Committee_Head_id || data.user.User_id || data.user.Section_id
         req.current_user=data.user
+        req.role=data.role
         
         console.log(data)
         next()

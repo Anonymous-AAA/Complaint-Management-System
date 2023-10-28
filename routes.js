@@ -248,6 +248,7 @@ router.get("/user/current", fetchUser, async (req, res) => {
     department: user?.Department,
     designation: user?.Designation,
     type: type,
+    role: req.role,
 
   };
   let role = req.role === "user" ? "User" : req.role;
