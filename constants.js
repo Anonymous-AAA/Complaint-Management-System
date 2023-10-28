@@ -13,5 +13,7 @@ const typeFromId = {
 }
 
 
-module.exports = idFromType
-module.exports = typeFromId
+module.exports= {
+    idFromType,
+    typeFromId,
+}

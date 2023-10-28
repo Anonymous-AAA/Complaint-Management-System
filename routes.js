@@ -9,8 +9,8 @@ const express = require("express");
 const router = express.Router();
 
 //importing constants
-const idFromType = require("./constants");
-const typeFromId = require("./constants");
+const {idFromType} = require("./constants");
+const {typeFromId} = require("./constants");
 
 //external imports
 const bcrypt = require("bcrypt");
@@ -239,12 +239,16 @@ router
 //gautham
 router.get("/user/current", fetchUser, async (req, res) => {
   let user = req.current_user;
+  let type= idFromType[user?.Committee_Head_id];
   //make all the keys in user object start with lowercase
   user = {
-    ...user,
+  
     name: user.Name,
     email: user.Email,
-    department: user.Department,
+    department: user?.Department,
+    designation: user?.Designation,
+    type: type,
+
   };
   let role = req.role === "user" ? "User" : req.role;
 
