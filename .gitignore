@@ -3,3 +3,4 @@ appdb.sqlite3
 .env
 hashGen.js
 *.json
+.DS_Store
