@@ -235,7 +235,7 @@ router.route('/complaint/:id')
 
         })
 
-        res.json(getComplaint(complaint))
+        res.json(await getComplaint(complaint.dataValues))
     })
     .put(async (req, res) => {
         let data = req.body
