@@ -410,7 +410,7 @@ router.get('/test', (req, res) => {
     res.json({ Response: "Request successful" })
 })
 
-router.get("/pending_req", fetchUser, async (req, res) => {
+router.get("/pending_reqs", fetchUser, async (req, res) => {
     if (req.role != "committee head") {
         return res.status(403).json({ Response: "Access Denied" })
     }
@@ -420,9 +420,26 @@ router.get("/pending_req", fetchUser, async (req, res) => {
             is_Authorized: false
         }
     })
+    
+   //console.log(pending_reqs)
+   //extract data values from pending_reqs
+    pending_reqs = pending_reqs.map((item)=>item.dataValues)
+    console.log(pending_reqs)
+
+    //make all the keys in user object start with lowercase
+    pending_reqs = pending_reqs.map((item)=>{
+        return {
+            ...item,
+            name: item.Name,
+            email: item.Email,
+            department: item.Department,
+            designation: item.Designation,
+            id: item.Section_id
+        }
+    })
 
 
-    res.json({ Response: "Success", pending_reqs: pending_reqs })
+    res.json(pending_reqs)
 
 }
 )
