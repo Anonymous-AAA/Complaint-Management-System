@@ -145,7 +145,7 @@ async function getComplaint(complaint) {
     });
 
     comment_list.push({
-      user: section.name,
+      user: section.Name,
       designation: section.Designation,
       comment: comment.Comment,
       email: section.Email,
@@ -401,12 +401,14 @@ router.post("/resolve/:id", fetchUser, async (req, res) => {
     let data = req.body;
     let user = req.current_user;
     let role = req.role;
+    // if role is not committee head then return access denied
     if (role != "committee head") {
       return res
         .status(403)
         .json({ Response: "Access Denied" });
     }
     let complaint = await Complaint.findOne({ Complaint_id: req.params.id });
+    // if committee head of section head is different from the committee head id of the complaint then return access denied
     if (complaint.Committee_Head_id != user.id) {
       return res
         .status(403)
@@ -415,12 +417,18 @@ router.post("/resolve/:id", fetchUser, async (req, res) => {
             "Access Denied",
         });
     }
+    // if complaint is already resolved then return access denied
+    if (complaint.Status == "Resolved") {
+        return res.status(403).json({ Response: "Access Denied" });
+    }
+    // updating complaint status to resolved
     complaint.Status = "Resolved";
     complaint.Remarks = data.remarks;
     complaint.save();
     return res.status(200).json({ Response: "Complaint Resolved" });
   } catch (error) {
     console.log(error);
+    // if any error occurs then return internal server error
     return res.status(500).json({ Response: "Internal Server Error" });
   }
 });
