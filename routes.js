@@ -162,6 +162,7 @@ async function getComplaint(complaint) {
     type: idFromType[complaint.Committee_Head_id],
     remarks: complaint.Remarks,
     comments: comment_list,
+    location: complaint.Location,
   };
 }
 
