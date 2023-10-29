@@ -255,7 +255,7 @@ router.get("/user/current", fetchUser, async (req, res) => {
     designation: user?.Designation,
     type: type,
     role: req.role,
-
+    is_Authorized: user?.is_Authorized,
   };
   let role = req.role === "user" ? "User" : req.role;
 
