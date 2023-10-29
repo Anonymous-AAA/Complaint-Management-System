@@ -169,12 +169,14 @@ router.get("/complaints", fetchUser, async (req, res) => {
   let current_user = req.current_user;
   let role = req.role;
 
-  console.log("Hello", current_user, role);
+  // console.log("Hello", current_user, role);
 
   if (role === "section head") {
     var complaints = await Complaint.findAll({
       where: {
         Committee_Head_id: current_user.Committee_Head_id,
+        // status: "Processing"
+        Status: "Processing",
       },
     });
   } else if (role == "committee head") {
@@ -192,13 +194,13 @@ router.get("/complaints", fetchUser, async (req, res) => {
   }
 
   let ans = [];
-  console.log("complaints", complaints);
+  // console.log("complaints", complaints);
   for (complaint of complaints) {
     
     ans.push(await getComplaint(complaint.dataValues));
   }
 
-  console.log("ans", ans);
+  // console.log("ans", ans);
 
   res.json({ Response: "Success", Complaints: ans });
 });
@@ -264,7 +266,7 @@ router.get("/user/current", fetchUser, async (req, res) => {
 router.post("/signup", async (req, res) => {
   try {
     let data = req.body;
-    console.log(data);
+    // console.log(data);
     let passw = bcrypt.hashSync(data.password, 10);
     if (data.role === "user") {
       //check if user already exists
@@ -378,7 +380,7 @@ router.post("/comment/:id", fetchUser, async (req, res) => {
     let data = req.body;
     let user = req.current_user;
     let role = req.role;
-    let complaint = await Complaint.findOne({ Complaint_id: req.params.id });
+    let complaint = await Complaint.findOne({ where : {Complaint_id: req.params.id} });
     if (role != "section head") {
       return res.status(403).json({ Response: "Access Denied" });
     }
@@ -412,7 +414,7 @@ router.post("/resolve/:id", fetchUser, async (req, res) => {
         .status(403)
         .json({ Response: "Access Denied because of rolw issue" });
     }
-    let complaint = await Complaint.findOne({ Complaint_id: req.params.id });
+    let complaint = await Complaint.findOne({ where : {Complaint_id: req.params.id }});
     // if committee head of section head is different from the committee head id of the complaint then return access denied
     if (complaint.Committee_Head_id != user.id) {
       return res
@@ -453,7 +455,7 @@ router.get("/pending_reqs", fetchUser, async (req, res) => {
   //console.log(pending_reqs)
   //extract data values from pending_reqs
   pending_reqs = pending_reqs.map((item) => item.dataValues);
-  console.log(pending_reqs);
+  // console.log(pending_reqs);
 
   //make all the keys in user object start with lowercase
   pending_reqs = pending_reqs.map((item) => {
