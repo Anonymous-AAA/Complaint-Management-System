@@ -116,7 +116,8 @@ router.post("/complaint", fetchUser, async (req, res) => {
         Status: "Open",
         Location: data.location,
         User_id: req.current_user.id,
-        Committee_Head_id: idFromType[data.type],
+        Committee_Head_id: typeFromId[data.type],
+        Date_posted:new Date().toLocaleString(),
       });
     }
     res.json({ Response: "Complaint Added Successfully" });
@@ -157,8 +158,8 @@ async function getComplaint(complaint) {
     title: complaint.Title,
     description: complaint.Description,
     status: complaint.Status,
-    date: complaint.Date_jed,
-    type: "Test",
+    date: complaint.Date_posted,
+    type: idFromType[complaint.Committee_Head_id],
     remarks: complaint.Remarks,
     comments: comment_list,
   };
@@ -193,6 +194,7 @@ router.get("/complaints", fetchUser, async (req, res) => {
   let ans = [];
   console.log("complaints", complaints);
   for (complaint of complaints) {
+    
     ans.push(await getComplaint(complaint.dataValues));
   }
 
@@ -222,10 +224,12 @@ router
     });
     complaint.Title = data.title;
     complaint.Description = data.description;
-    complaint.Location = data.location;
+    complaint.Location = data?.location;
+    complaint.Committee_Head_id = typeFromId[data.type];
     await complaint.save();
     res.json({ Response: "Complaint Updated" });
   })
+
   .delete(async (req, res) => {
     let complaint = await Complaint.findOne({
       where: {
@@ -406,7 +410,7 @@ router.post("/resolve/:id", fetchUser, async (req, res) => {
     if (role != "committee head") {
       return res
         .status(403)
-        .json({ Response: "Access Denied" });
+        .json({ Response: "Access Denied because of rolw issue" });
     }
     let complaint = await Complaint.findOne({ Complaint_id: req.params.id });
     // if committee head of section head is different from the committee head id of the complaint then return access denied
@@ -415,17 +419,18 @@ router.post("/resolve/:id", fetchUser, async (req, res) => {
         .status(403)
         .json({
           Response:
-            "Access Denied",
+            "Access Denied because its not you committee",
         });
     }
+    console.log(complaint.Status);
     // if complaint is already resolved then return access denied
-    if (complaint.Status == "Resolved") {
-        return res.status(403).json({ Response: "Access Denied" });
+    if (complaint.Status === "Resolved") {
+        return res.status(403).json({ Response: "Access Denied because already resolved" });
     }
     // updating complaint status to resolved
-    complaint.Status = "Resolved";
     complaint.Remarks = data.remarks;
-    complaint.save();
+    complaint.Status = "Resolved";
+    await complaint.save();
     return res.status(200).json({ Response: "Complaint Resolved" });
   } catch (error) {
     console.log(error);

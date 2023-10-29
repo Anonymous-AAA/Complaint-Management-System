@@ -33,6 +33,7 @@ const Complaints = sequelize.define('Complaints', {
   },
   Location: {
     type: DataTypes.STRING,
+    
   },
   User_id: {
     type: DataTypes.INTEGER,
